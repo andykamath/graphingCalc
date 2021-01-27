@@ -1,4 +1,5 @@
 module.exports = {
+    pathPrefix: "/graphingCalc",
   siteMetadata: {
     title: "graphingViz",
   },

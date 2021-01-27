@@ -1,0 +1,39 @@
+@import url(https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css);
+
+@keyframes dash {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+@keyframes colorchange1 {
+    from {
+        fill: transparent
+    }
+
+    to {
+        fill: black
+    }
+}
+
+@keyframes colorchange2 {
+    from {
+        fill: transparent
+    }
+
+    to {
+        fill: #FF9900
+    }
+}
+
+.fillLater {
+    animation: colorchange 1s linear forwards;
+    animation-delay: 3s
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background: transparent
+  }
