@@ -185,15 +185,15 @@ class Graph extends React.Component {
             </svg>
             <div class="row">
                 <div className="input-field col s4">
-                <input stateParam="xStart" type="number" onChange={this.changeDim} />
+                <input stateParam="xStart" type="number" onChange={this.changeDim} defaultValue={this.state.xStart} />
                     <p>x Min</p>
                 </div>
                 <div className="input-field col s4">
-                <input stateParam="xFin" type="number" onChange={this.changeDim} />
+                <input stateParam="xFin" type="number" onChange={this.changeDim}  defaultValue={this.state.xStart} />
                     <p>x Max</p>
                 </div>
                 <div className="input-field col s4">
-                    <input stateParam="yFin" type="number" onChange={this.changeDim} />
+                    <input stateParam="yFin" type="number" onChange={this.changeDim}  defaultValue={this.state.xStart} />
                     <p>y Max</p>
                 </div>
             </div>
