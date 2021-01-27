@@ -7,16 +7,16 @@ class IndexPage extends React.Component {
         super(props);
         this.state = {
             funcs: [],
-            graphXStart: 0,
-            graphXFin: 2 * Math.PI,
-            graphYStart: -1,
-            graphYFin: 1
+            graphXStart: -10,
+            graphXFin: 10,
+            graphYStart: -10,
+            graphYFin: 10
         }
         this._child = React.createRef();
     }
 
     componentDidMount() {
-        this.addFunc(Math.sin)
+        // this.addFunc(Math.sin)
     }
 
     addFunc(func, n = 25, showRiemann=false, showTrapezoidal=false) {
@@ -28,7 +28,7 @@ class IndexPage extends React.Component {
             n: n,
             showRiemann: showRiemann,
             showTrapezoidal: showTrapezoidal,
-            func: func,
+            func: 'x^2',
             dx: dx,
             pixelStep: pixelStep
         };
@@ -52,8 +52,8 @@ class IndexPage extends React.Component {
                 width: "100%"
             }} className="valign-wrapper center-align">
                 <div className="container center-align">
-                    <a className="btn" onClick={() => this.addFunc(Math.cos)}>Add Cosine</a>
-                    <a className="btn" onClick={() => this.addFunc((x) => x*x)}>Add Quadratic</a>
+                    {/* <a className="btn" onClick={() => this.addFunc(Math.cos)}>Add Cosine</a>
+                    <a className="btn" onClick={() => this.addFunc((x) => x*x)}>Add Quadratic</a> */}
                     {g}
                 </div>
             </main>

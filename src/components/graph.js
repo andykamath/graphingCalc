@@ -1,5 +1,6 @@
 import * as React from "react";
-import "../components/layout.css"
+import "../components/layout.css";
+import * as Algebrite from "algebrite";
 
 class GraphFunc extends React.Component {
     constructor(props) {
@@ -8,47 +9,47 @@ class GraphFunc extends React.Component {
     }
 
     plot() {
-        const func = this.props.func;
+        const func = (x) => parseFloat(Algebrite.run(`float(subst(${x}, x, ${this.props.func}))`));
         const yStretch = (this.props.height / 2) / this.props.yFin
-        return Array(50).fill(1).map((_, i) => {
+        return Array(this.props.n + 2).fill(1).map((_, i) => {
             const x = this.props.xStart + this.props.dx * i;
             return `${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - yStretch * func(x)}`
         }).join(" ")
     }
 
     plotRiemann(drawIndividual=false) {
-        const func = this.props.func;
+        const func = (x) => parseFloat(Algebrite.run(`float(subst(${x}, x, ${this.props.func}))`));
         return Array(this.props.n + 2).fill(1).map((_, i) => {
             const x = this.props.xStart + this.props.dx * i;
             const y = (func(x) - func(x - this.props.dx)) / this.props.yFin;
-            if (drawIndividual) return `L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0} L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - this.props.yStretch * func(x)} L ${this.props.xStart + this.props.pixelStep * (i + 1)} ${this.props.y0 - this.props.yStretch * func(x)}`
             return `L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0} M ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0} L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - this.props.yStretch * func(x)} L ${this.props.xStart + this.props.pixelStep * (i + 1)} ${this.props.y0 - this.props.yStretch * func(x)}`
         }).join(" ")
     }
 
     plotTrapezoidal() {
-        const func = this.props.func;
-        return Array(this.props.n + 1).fill(1).map((_, i) => {
+        const func = (x) => parseFloat(Algebrite.run(`float(subst(${x}, x, ${this.props.func}))`));
+        return Array(this.props.n + 2).fill(1).map((_, i) => {
             const x = this.props.xStart + this.props.dx * i;
             return `L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - this.props.yStretch * func(x)} L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0} L ${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - this.props.yStretch * func(x)}`
-        }).join(" ")
+        }).join(" ") + `L ${this.props.xStart + (this.props.n + 3) * this.props.pixelStep} ${this.props.y0}`
     }
 
     render() {
-        console.log("PATH", this.plot())
+        console.log("PATH", this.plotTrapezoidal());
+        const func = (x) => parseFloat(Algebrite.run(`float(subst(${x}, x, ${this.props.func}))`));
         return <>
-        <path d={`M 0 ${this.props.y0 - this.props.yStretch * this.props.func(this.props.xStart)} L ${this.plot()}`} fill="transparent" stroke="#0055CC" strokeWidth={"3px"} pathLength={this.props.width} style={{
+        <path d={`M 0 ${this.props.y0 - this.props.yStretch * func(this.props.xStart)} L ${this.plot()}`} fill="transparent" stroke="#0055CC" strokeWidth={"3px"} pathLength={this.props.width} style={{
             strokeDasharray: this.props.width, //`${this.state.width} ${this.state.width}`,
             strokeDashoffset: this.props.width,
             // strokeDashoffset: 1, //this.state.width,
             animation: "dash 3s linear forwards"
         }}/>
-        {this.props.showRiemann ? <path opacity={.5} d={`M 0 ${this.props.y0 - this.props.func(this.props.xStart)} ${this.plotRiemann()}`} fill="transparent" stroke="grey" strokeWidth={"3px"} pathLength={this.props.width} style={{
+        {this.props.showRiemann ? <path opacity={.5} d={`M 0 ${this.props.y0 - func(this.props.xStart)} ${this.plotRiemann()}`} fill="transparent" stroke="grey" strokeWidth={"3px"} pathLength={this.props.width} style={{
             strokeDasharray: this.props.width,
             strokeDashoffset: this.props.width,
             animation: `dash ${this.props.n * 3}s linear forwards, colorchange1 1s 3s linear forwards`
         }}/> : <></>}
-        {this.props.showTrapezoidal ? <path opacity={.5} d={`M 0 ${this.props.y0 - this.props.func(this.props.xStart)} ${this.plotTrapezoidal()} M 0 ${this.props.y0 - this.props.func(this.props.xStart)}`} fill="transparent" stroke="#B2D948" strokeWidth={"3px"} pathLength={this.props.width} style={{
+        {this.props.showTrapezoidal ? <path opacity={.5} d={`M 0 ${this.props.y0 - func(this.props.xStart)} ${this.plotTrapezoidal()} M 0 ${this.props.y0 - func(this.props.xStart)}`} fill="transparent" stroke="#B2D948" strokeWidth={"3px"} pathLength={this.props.width} style={{
             strokeDasharray: this.props.width,
             strokeDashoffset: this.props.width,
             animation: `dash 3s linear forwards, colorchange2 1s 3s linear forwards`
@@ -82,16 +83,18 @@ class Graph extends React.Component {
             xFin: xFin,
             yFin: yFin,    
             
-            funcs: this.props.funcs
+            funcs: this.props.funcs,
+            curFunc: "sin(x)"
         }
     }
 
-    addFunc(func, n = 50, showRiemann=false, showTrapezoidal=false) {
+    addFunc(n = 20, showRiemann=false, showTrapezoidal=false) {
+        console.log("REACHED HERE")
         const toAdd = {
             n: n,
             showRiemann: showRiemann,
             showTrapezoidal: showTrapezoidal,
-            func: func
+            func: this.state.curFunc
         };
         const funcs = this.state.funcs.concat(toAdd);
         this.setState({ funcs: funcs })
@@ -143,7 +146,7 @@ class Graph extends React.Component {
     changeDim(event) {
         console.log("EVENT RECEIVED", event.target.getAttribute('stateParam'), event.target.value)
         const stateParam = event.target.getAttribute('stateParam')
-        const newVal = parseFloat(event.target.value);
+        const newVal = (stateParam == "curFunc") ? event.target.value : parseFloat(event.target.value);
         const xFin = (stateParam == "xFin") ? parseFloat(newVal) : this.state.xFin;
         const xStart = (stateParam == "xFin") ? parseFloat(newVal) : this.state.xFin;
         const dx = (xFin - xStart) / this.state.n;
@@ -156,11 +159,14 @@ class Graph extends React.Component {
     render() {
         console.log("FUNCS", this.state.funcs)
         const buttons = this.state.funcs.map((x, i) => {
-            return <><a className="btn" onClick={() => this.showRiemann(i)}>{x.showRiemann ? "Remove" : "Add"} Riemann {x.showRiemann ? "from" : "to"} Function {i}</a>
-            <a className="btn" onClick={() => this.showTrapezoidal(i)}>{x.showTrapezoidal ? "Remove" : "Add"} Trapezoidal {x.showTrapezoidal ? "from" : "to"} Function {i}</a>
+            return <>
+            <hr />
+            <h3>Function {i + 1} = {x.func}</h3>
+            <a className="btn" onClick={() => this.showRiemann(i)}>{x.showRiemann ? "Remove" : "Add"} Riemann</a>
+            <a className="btn" onClick={() => this.showTrapezoidal(i)}>{x.showTrapezoidal ? "Remove" : "Add"} Trapezoidal</a>
             <p class="range-field">
                 <h3>Set n:</h3>
-                    <input type="range" forFunc={i} min="0" max="20" onChange={this.changeN} />
+                    <input type="range" forFunc={i} min="0" max="50" defaultValue={x.n} onChange={this.changeN} />
             </p>
             <br/><br/></>
         })
@@ -195,6 +201,15 @@ class Graph extends React.Component {
                 <div className="input-field col s4">
                     <input stateParam="yFin" type="number" onChange={this.changeDim}  defaultValue={this.state.yFin} />
                     <p>y Max</p>
+                </div>
+            </div>
+            <div class="row">
+                <div className="input-field col s8">
+                <input stateParam="curFunc" onChange={this.changeDim} placeholder="e^x or sin(x) or cos(x) or x^2" />
+                    <p>f(x) = </p>
+                </div>
+                <div className="input-field col s4">
+                    <a class="btn" onClick={() => this.addFunc()}>Add Function</a>
                 </div>
             </div>
             {buttons}
