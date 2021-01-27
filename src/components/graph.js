@@ -189,11 +189,11 @@ class Graph extends React.Component {
                     <p>x Min</p>
                 </div>
                 <div className="input-field col s4">
-                <input stateParam="xFin" type="number" onChange={this.changeDim}  defaultValue={this.state.xStart} />
+                <input stateParam="xFin" type="number" onChange={this.changeDim}  defaultValue={this.state.xFin} />
                     <p>x Max</p>
                 </div>
                 <div className="input-field col s4">
-                    <input stateParam="yFin" type="number" onChange={this.changeDim}  defaultValue={this.state.xStart} />
+                    <input stateParam="yFin" type="number" onChange={this.changeDim}  defaultValue={this.state.yFin} />
                     <p>y Max</p>
                 </div>
             </div>
