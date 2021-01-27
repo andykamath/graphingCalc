@@ -84,17 +84,19 @@ class Graph extends React.Component {
             yFin: yFin,    
             
             funcs: this.props.funcs,
-            curFunc: "sin(x)"
+            curFunc: ""
         }
     }
 
     addFunc(n = 20, showRiemann=false, showTrapezoidal=false) {
         console.log("REACHED HERE")
+        if(this.state.curFunc == "") return
         const toAdd = {
             n: n,
             showRiemann: showRiemann,
             showTrapezoidal: showTrapezoidal,
-            func: this.state.curFunc
+            func: this.state.curFunc,
+            curFunc: ""
         };
         const funcs = this.state.funcs.concat(toAdd);
         this.setState({ funcs: funcs })
