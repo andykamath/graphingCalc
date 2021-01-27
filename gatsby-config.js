@@ -2,6 +2,7 @@ module.exports = {
     pathPrefix: "/graphingCalc",
   siteMetadata: {
     title: "graphingViz",
+    siteUrl: "https://andykamath.com"
   },
   plugins: [
     "gatsby-plugin-styled-components",

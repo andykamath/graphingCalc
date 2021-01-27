@@ -10,7 +10,7 @@ class GraphFunc extends React.Component {
     plot() {
         const func = this.props.func;
         const yStretch = (this.props.height / 2) / this.props.yFin
-        return Array(this.props.n + 2).fill(1).map((_, i) => {
+        return Array(50).fill(1).map((_, i) => {
             const x = this.props.xStart + this.props.dx * i;
             return `${this.props.xStart + this.props.pixelStep * i} ${this.props.y0 - yStretch * func(x)}`
         }).join(" ")
@@ -48,7 +48,7 @@ class GraphFunc extends React.Component {
             strokeDashoffset: this.props.width,
             animation: `dash ${this.props.n * 3}s linear forwards, colorchange1 1s 3s linear forwards`
         }}/> : <></>}
-        {this.props.showTrapezoidal ? <path opacity={.5} d={`M 0 ${this.props.y0 - this.props.func(this.props.xStart)} ${this.plotTrapezoidal()} Z`} fill="transparent" stroke="#B2D948" strokeWidth={"3px"} pathLength={this.props.width} style={{
+        {this.props.showTrapezoidal ? <path opacity={.5} d={`M 0 ${this.props.y0 - this.props.func(this.props.xStart)} ${this.plotTrapezoidal()} M 0 ${this.props.y0 - this.props.func(this.props.xStart)}`} fill="transparent" stroke="#B2D948" strokeWidth={"3px"} pathLength={this.props.width} style={{
             strokeDasharray: this.props.width,
             strokeDashoffset: this.props.width,
             animation: `dash 3s linear forwards, colorchange2 1s 3s linear forwards`
@@ -70,6 +70,7 @@ class Graph extends React.Component {
         const yFin = (this.props.yFin || this.props.yFin == 0) ? this.props.yFin : 10;
 
         this.changeN = this.changeN.bind(this);
+        this.changeDim = this.changeDim.bind(this);
 
         this.state = {
             width: width,
@@ -86,17 +87,11 @@ class Graph extends React.Component {
     }
 
     addFunc(func, n = 50, showRiemann=false, showTrapezoidal=false) {
-        const dx = (this.state.xFin - this.state.xStart) / n;
-        const pixelStep = this.state.width / n;
-        const yStretch = (this.state.height / 2) / this.state.yFin;
         const toAdd = {
-            yStretch: yStretch,
             n: n,
             showRiemann: showRiemann,
             showTrapezoidal: showTrapezoidal,
-            func: func,
-            dx: dx,
-            pixelStep: pixelStep
+            func: func
         };
         const funcs = this.state.funcs.concat(toAdd);
         this.setState({ funcs: funcs })
@@ -108,7 +103,7 @@ class Graph extends React.Component {
                 ...funcs.slice(0,i),
                 {
                     ...funcs[i],
-                    showTrapezoidal: true,
+                    showTrapezoidal: !funcs[i].showTrapezoidal,
                 },
                 ...funcs.slice(i + 1)
             ]
@@ -132,30 +127,40 @@ class Graph extends React.Component {
         console.log("EVENT RECEIVED", event.target.getAttribute('forFunc'), event.target.value)
         const i = parseInt(event.target.getAttribute('forFunc'));
         const n = parseInt(event.target.value);
-        const dx = (this.state.xFin - this.state.xStart) / n;
-        const pixelStep = this.state.width / n;
+        
         this.setState(({funcs}) => ({
             funcs: [
                 ...funcs.slice(0,i),
                 {
                     ...funcs[i],
-                    n: n,
-                    dx: dx,
-                    pixelStep: pixelStep
+                    n: n
                 },
                 ...funcs.slice(i + 1)
             ]
         }));
-      }
+    }
+
+    changeDim(event) {
+        console.log("EVENT RECEIVED", event.target.getAttribute('stateParam'), event.target.value)
+        const stateParam = event.target.getAttribute('stateParam')
+        const newVal = parseFloat(event.target.value);
+        const xFin = (stateParam == "xFin") ? parseFloat(newVal) : this.state.xFin;
+        const xStart = (stateParam == "xFin") ? parseFloat(newVal) : this.state.xFin;
+        const dx = (xFin - xStart) / this.state.n;
+        this.setState({
+            [stateParam]: newVal,
+            dx: dx
+        });
+    }
 
     render() {
         console.log("FUNCS", this.state.funcs)
         const buttons = this.state.funcs.map((x, i) => {
             return <><a className="btn" onClick={() => this.showRiemann(i)}>{x.showRiemann ? "Remove" : "Add"} Riemann {x.showRiemann ? "from" : "to"} Function {i}</a>
-            <a className="btn" onClick={() => this.showTrapezoidal(i)}>Add Trapezoid to Function {i}</a>
+            <a className="btn" onClick={() => this.showTrapezoidal(i)}>{x.showTrapezoidal ? "Remove" : "Add"} Trapezoidal {x.showTrapezoidal ? "from" : "to"} Function {i}</a>
             <p class="range-field">
                 <h3>Set n:</h3>
-                <input type="range" forFunc={i} min="0" max="50" onChange={this.changeN} />
+                    <input type="range" forFunc={i} min="0" max="20" onChange={this.changeN} />
             </p>
             <br/><br/></>
         })
@@ -166,14 +171,32 @@ class Graph extends React.Component {
             <svg width={this.state.width} height={"100%"}>
                 {/* <rect width="100%" height="100%" fill="black"></rect> */}
                 {this.state.funcs.map(x => {
-                    console.log("X", x)
+                    console.log("X", x);
+                    console.log("DIMS", this.state.xStart, this.state.xFin, this.state.yFin, this.state.dx)
+                    const dx = (this.state.xFin - this.state.xStart) / x.n;
+                    const pixelStep = this.state.width / x.n;
+                    const yStretch = (this.state.height / 2) / this.state.yFin;
                     return <GraphFunc 
                         width={this.state.width} height={this.state.height} xStart={this.state.xStart} yStart={this.state.yStart} xFin={this.state.xFin} yFin={this.state.yFin} x0={this.state.x0} y0={this.state.y0}
-                        yStretch={x.yStretch} n={x.n} showRiemann={x.showRiemann} showTrapezoidal={x.showTrapezoidal} func={x.func} dx={x.dx} pixelStep={x.pixelStep} />
+                        yStretch={yStretch} n={x.n} showRiemann={x.showRiemann} showTrapezoidal={x.showTrapezoidal} func={x.func} dx={dx} pixelStep={pixelStep} />
                 }
                 )}
                 <line x1={0} y1={this.state.y0} x2={this.state.width} y2={this.state.y0} stroke="#2A707A" />
             </svg>
+            <div class="row">
+                <div className="input-field col s4">
+                <input stateParam="xStart" type="number" onChange={this.changeDim} />
+                    <p>x Min</p>
+                </div>
+                <div className="input-field col s4">
+                <input stateParam="xFin" type="number" onChange={this.changeDim} />
+                    <p>x Max</p>
+                </div>
+                <div className="input-field col s4">
+                    <input stateParam="yFin" type="number" onChange={this.changeDim} />
+                    <p>y Max</p>
+                </div>
+            </div>
             {buttons}
         </div>
     }

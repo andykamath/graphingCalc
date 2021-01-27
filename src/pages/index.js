@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Graph, GraphFunc} from "./graph";
+import {Graph, GraphFunc} from "../components/graph";
 import "../components/layout.css";
 
 class IndexPage extends React.Component {
@@ -7,8 +7,6 @@ class IndexPage extends React.Component {
         super(props);
         this.state = {
             funcs: [],
-            graphHeight: window.innerHeight / 4,
-            graphWidth: window.innerWidth / 4,
             graphXStart: 0,
             graphXFin: 2 * Math.PI,
             graphYStart: -1,
@@ -39,15 +37,23 @@ class IndexPage extends React.Component {
     }
 
     render() {
+        if (typeof window === `undefined`) {
+            return(<></>);
+        }
+
+        const graphHeight = window.innerHeight / 4;
+        const graphWidth = window.innerWidth / 4;
+
         console.log("INDEX FUNCS", this.state.funcs)
-        const g = <Graph ref={this._child} funcs={this.state.funcs.map(x => x)} height={this.state.graphHeight} width={this.state.graphWidth} xStart={this.state.graphXStart} xFin={this.state.graphXFin} yFin={this.state.graphYFin} />
+        const g = <Graph ref={this._child} funcs={this.state.funcs.map(x => x)} height={graphHeight} width={graphWidth} xStart={this.state.graphXStart} xFin={this.state.graphXFin} yFin={this.state.graphYFin} />
         return (
             <main style={{
                 height: "100vh",
                 width: "100%"
             }} className="valign-wrapper center-align">
                 <div className="container center-align">
-                    <a className="btn" onClick={() => this.addFunc(Math.cos)}>Add Function</a>
+                    <a className="btn" onClick={() => this.addFunc(Math.cos)}>Add Cosine</a>
+                    <a className="btn" onClick={() => this.addFunc((x) => x*x)}>Add Quadratic</a>
                     {g}
                 </div>
             </main>
